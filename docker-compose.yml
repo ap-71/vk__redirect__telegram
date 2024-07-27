@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: [ "python", "app.py" ]
+    env_file:
+      - .env
