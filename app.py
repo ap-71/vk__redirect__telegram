@@ -62,10 +62,9 @@ for data in bot.listen():
         if media_urls.__len__() == 0:
             bot_tg.send_message(chat_id=group_id_tg, text=text)
         else:
-            i = 0
             medias = []
             
-            for mu in media_urls:
+            for i, mu in enumerate(media_urls):
                 type_ = mu['type']
                 media_url = mu['url']
                 media = None
@@ -77,8 +76,3 @@ for data in bot.listen():
                     medias.append(media)
             
             bot_tg.send_media_group(chat_id=group_id_tg, media=medias)
-            
-        
-# vk = vk_session.get_api()
-
-# print(vk.wall.post(message='Hello world!'))
