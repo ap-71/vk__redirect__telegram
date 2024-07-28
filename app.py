@@ -1,78 +1,34 @@
-import os
-import vk_api
-from vk_api.bot_longpoll import VkBotLongPoll
-import telebot
-from telebot.types import InputMediaPhoto
+import time
+import loguru
+from config import config_tg, config_vk
+from base import TG, VKRedirectTo
 
 
-token = os.environ['token']
-token_tg = os.environ['token_tg']
-group_id = os.environ['group_id']
-group_id_tg = os.environ['group_id_tg']
-base_url_group = os.environ['base_url_group']
+retries = 0
+max_retries = 5
+time_sleep_sec = 15
 
-vk_session = vk_api.VkApi(token=token)
+loguru.logger.info('Запуск')
 
-bot = VkBotLongPoll(vk_session, group_id, wait=25)
-bot_tg = telebot.TeleBot(token_tg, parse_mode='HTML')
-
-
-def get_copy_history(data):
-    posts = []
-    
-    for ch in data.object.get('copy_history', []):
-        source_id = ch.get('owner_id')
-        
-        text = ch.get('text')
-        
-        if text is not None and text != '' and source_id is not None:
-            full_path_source = base_url_group+str(abs(source_id))
-            text += f'\n\n<a href="{full_path_source}">Источник</a>'
-        else:
-            text = ''
-            
-        for att in ch['attachments']:
-            type_ = att.get('type')
-            
-            if type_ is None:
-                continue
-            
-            try:
-                urls_media.append(dict(url=att[type_]['orig_'+type_]['url'], type=type_))
-            except Exception as e:
-                print('error get media => ', str(e))
-        posts.append({ "text": text, "media_urls": urls_media})
-    
-    return posts
-
-
-for data in bot.listen():
-    urls_media = []
-    full_path_source = None
-    
+while True:
     try:
-        posts = get_copy_history(data=data)
+        vk_redirect_tg = VKRedirectTo(
+            group_api_token=config_vk.token, 
+            group_id=config_vk.group_id,
+            redirect_to=TG(
+                token=config_tg.token, 
+                group_id=config_tg.group_id
+            )
+        )
+        vk_redirect_tg.run()
     except Exception as e:
-        posts = []
-    
-    for post in posts:
-        text = post['text']
-        media_urls = post['media_urls']
-        
-        if media_urls.__len__() == 0:
-            bot_tg.send_message(chat_id=group_id_tg, text=text)
+        loguru.logger.error('Ошибка: '+str(e))
+        retries += 1
+        if retries < max_retries:
+            loguru.logger.info(f'Повтор {retries} из {max_retries}')
+            time.sleep(time_sleep_sec)
+            continue
         else:
-            medias = []
-            
-            for i, mu in enumerate(media_urls):
-                type_ = mu['type']
-                media_url = mu['url']
-                media = None
-                
-                if type_ == 'photo':
-                    media = InputMediaPhoto(media=media_url, caption=text if i == 0 else None)
-                
-                if media is not None:
-                    medias.append(media)
-            
-            bot_tg.send_media_group(chat_id=group_id_tg, media=medias)
+            break
+
+loguru.logger.info('Работа завершена')
