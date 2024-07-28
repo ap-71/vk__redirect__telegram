@@ -2,3 +2,6 @@
 *.json
 .venv
 tmp
+test_*.py
+.vscode
+*cache*
