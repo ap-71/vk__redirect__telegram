@@ -104,7 +104,10 @@ class VKRedirectTo:
                         urls_media.append(URLMedia(url=url, type=TypeMedia.photo))
                 except Exception as e:
                     print('error get media => ', str(e))
-                    
+            
+            # для отладки
+            print(ch)
+            
             posts.append(Post(text=text, media_urls=urls_media))
         
         return posts
