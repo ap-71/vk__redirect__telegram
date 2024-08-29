@@ -1,3 +1,4 @@
+import loguru
 from config import base_url_group
 import vk_api
 from vk_api.bot_longpoll import VkBotLongPoll
@@ -106,7 +107,10 @@ class VKRedirectTo:
                     print('error get media => ', str(e))
             
             # для отладки
-            print(ch)
+            try:
+                loguru.logger.info(ch)
+            except Exception as e:
+                pass
             
             posts.append(Post(text=text, media_urls=urls_media))
         
