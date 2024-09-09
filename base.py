@@ -74,6 +74,10 @@ class VKRedirectTo:
                 original=ch.get('text')
             )
             
+            if ch.get('post_type') == 'suggest':
+                # пропускаем, если сообщение предложенное
+                continue
+            
             if text.original is not None and text.original != '' and source_id is not None:
                 full_path_source = self._base_url_group+str(abs(source_id))
                 text.last = f'\n\n<a href="{full_path_source}">Источник</a>'
