@@ -9,3 +9,12 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+  
+  bot_tu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: [ "python", "app.py" ]
+    restart: unless-stopped
+    env_file:
+      - .env-tu
