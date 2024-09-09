@@ -76,6 +76,12 @@ class VKRedirectTo:
             
             if ch.get('post_type') == 'suggest':
                 # пропускаем, если сообщение предложенное
+                # для отладки
+                try:
+                    loguru.logger.info(dict(post_type='suggest', text=ch.get('text')))
+                except Exception as e:
+                    pass
+                
                 continue
             
             if text.original is not None and text.original != '' and source_id is not None:
