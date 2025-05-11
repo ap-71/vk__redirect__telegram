@@ -5,3 +5,6 @@ tmp
 test_*.py
 .vscode
 *cache*
+media/*
+*.pickle
+*.mp4
